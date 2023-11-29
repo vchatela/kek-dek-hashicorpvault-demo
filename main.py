@@ -68,6 +68,10 @@ def vault_decrypt_dek(encrypted_dek):
     decoded_dek = decode_base64(decrypt_data['data']['plaintext'])  # Decode the decrypted DEK
     return decoded_dek
 
+# Function to split data into chunks
+def split_into_chunks(data, chunk_size):
+    return [data[i:i + chunk_size] for i in range(0, len(data), chunk_size)]
+
 # Ensure the Vault key exists
 ensure_vault_key_exists()
 
@@ -75,20 +79,28 @@ ensure_vault_key_exists()
 dek = generate_dek()
 
 # Sample data to encrypt
-sample_data = b"Hello, this is a test data!"
+sample_data = b"Hello, this is a test data that is quite long and will be split into chunks!"
 
-# Encrypt the data using DEK
-encrypted_data = encrypt_data(sample_data, dek)
+# Define chunk size (e.g., 20 bytes)
+chunk_size = 20
 
-# Encrypt the DEK using KEK in Vault
-encrypted_dek = vault_encrypt_dek(dek)
+# Split data into chunks
+data_chunks = split_into_chunks(sample_data, chunk_size)
 
-# Decrypt the DEK using KEK in Vault
-decrypted_dek = vault_decrypt_dek(encrypted_dek)
+# Encrypt each chunk with a unique DEK
+encrypted_chunks = []
+for chunk in data_chunks:
+    dek = generate_dek()  # Generate a new DEK for each chunk
+    encrypted_chunk = encrypt_data(chunk, dek)  # Encrypt the chunk
+    encrypted_dek = vault_encrypt_dek(dek)  # Encrypt the DEK using KEK
+    encrypted_chunks.append((encrypted_chunk, encrypted_dek))
 
-# Decrypt the data using DEK
-decrypted_data = decrypt_data(encrypted_data, decrypted_dek)
+# Decrypt each chunk
+decrypted_data = b''
+for encrypted_chunk, encrypted_dek in encrypted_chunks:
+    decrypted_dek = vault_decrypt_dek(encrypted_dek)  # Decrypt the DEK using KEK
+    decrypted_chunk = decrypt_data(encrypted_chunk, decrypted_dek)  # Decrypt the chunk
+    decrypted_data += decrypted_chunk
 
 # Output the results
-print("Encrypted Data:", encrypted_data)
 print("Decrypted Data:", decrypted_data.decode())
