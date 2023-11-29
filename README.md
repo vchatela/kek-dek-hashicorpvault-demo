@@ -3,6 +3,13 @@
 ## Overview
 This document explains the cryptographic choices and implementation details for a Python script that integrates HashiCorp Vault for Key Encryption Key (KEK) management. The script demonstrates encrypting data using a Data Encryption Key (DEK) and securing the DEK using a KEK stored in HashiCorp Vault.
 
+```powershell
+C:\Users\Valentin\PycharmProjects\kek-dek-demo\venv\Scripts\python.exe C:\Users\Valentin\PycharmProjects\kek-dek-demo\main.py 
+Decrypted Data: Hello, this is a test data that is quite long and will be split into chunks!
+
+Process finished with exit code 0
+```
+
 ## Cryptographic Choices
 
 ### 1. Data Encryption Key (DEK)
